@@ -32,6 +32,10 @@ public class Sale {
     @Column(nullable = false)
     private Status status;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @OneToMany(mappedBy = "sale")
     private List<SaleItem> items;
 
