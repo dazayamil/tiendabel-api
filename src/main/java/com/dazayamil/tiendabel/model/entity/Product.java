@@ -3,7 +3,6 @@ package com.dazayamil.tiendabel.model.entity;
 import com.dazayamil.tiendabel.model.enums.Category;
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.math.BigDecimal;
 
 @Entity
