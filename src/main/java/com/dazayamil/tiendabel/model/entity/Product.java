@@ -20,6 +20,6 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    @Column(name = "current_price", nullable = false)
-    private BigDecimal currentPrice;
+    @Column(name = "price", nullable = false)
+    private BigDecimal price;
 }

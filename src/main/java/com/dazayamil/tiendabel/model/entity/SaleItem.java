@@ -12,10 +12,10 @@ public class SaleItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String size;
+    private String productSize;
 
-    @Column(name = "unit_price", nullable = false)
-    private BigDecimal unitPrice;
+    @Column(name = "priceAtMoment", nullable = false)
+    private BigDecimal priceAtMoment;
 
     @Column(nullable = false)
     private int quantity;
