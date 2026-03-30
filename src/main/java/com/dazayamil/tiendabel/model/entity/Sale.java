@@ -15,7 +15,7 @@ import java.util.List;
 public class Sale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
