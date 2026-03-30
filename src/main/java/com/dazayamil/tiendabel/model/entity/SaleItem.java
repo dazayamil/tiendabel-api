@@ -12,15 +12,15 @@ public class SaleItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String size;
+    private String productSize;
 
-    @Column(name = "unit_price", nullable = false)
-    private BigDecimal unitPrice;
+    @Column(name = "price_at_moment", nullable = false)
+    private BigDecimal priceAtMoment;
 
     @Column(nullable = false)
     private int quantity;
 
-    @ManyToOne(targetEntity = Sale.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Sale.class)
     @JoinColumn(name = "sale_id", nullable = false)
     private Sale sale;
 

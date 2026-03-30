@@ -9,4 +9,4 @@
 - Una venta debe tener al menos un producto.
 - El total se calcula automáticamente.
 - Puede editarse en caso de error de carga.
-- No se gestiona stock en la versión 1.
+- No se gestiona stock en la versió9n 1.

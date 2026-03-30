@@ -17,8 +17,8 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "create_at", nullable = false)
-    private LocalDateTime createAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
@@ -31,11 +31,17 @@ public class Sale {
     @Column(nullable = false)
     private Status status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
+    @OneToMany(
+            targetEntity = SaleItem.class,
+            mappedBy = "sale",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<SaleItem> items;
 
 }
