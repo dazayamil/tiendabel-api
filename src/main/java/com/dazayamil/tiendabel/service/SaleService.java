@@ -5,4 +5,5 @@ import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 
 public interface SaleService {
     SaleResponseDTO createSale(SaleCreateRequestDTO request);
+    SaleResponseDTO getSaleById(Long id);
 }
