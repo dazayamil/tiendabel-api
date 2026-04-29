@@ -80,6 +80,18 @@ public class SaleServiceImpl implements SaleService {
                 savedSale.getTotalAmount(),
                 savedSale.getStatus()
         );
+    }
 
+    @Override
+    public SaleResponseDTO getSaleById(Long id) {
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
+
+        return new SaleResponseDTO(
+                sale.getId(),
+                sale.getCreatedAt(),
+                sale.getTotalAmount(),
+                sale.getStatus()
+        );
     }
 }

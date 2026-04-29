@@ -5,10 +5,7 @@ import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 import com.dazayamil.tiendabel.service.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -19,6 +16,11 @@ public class SaleController {
 
     public SaleController(SaleService saleService){
         this.saleService = saleService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SaleResponseDTO> getSaleById(@PathVariable Long id){
+        return ResponseEntity.ok(saleService.getSaleById(id));
     }
 
     // POST /v1/sales -> 201 Create con Location header
