@@ -15,3 +15,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+server:
+  port: 8030
+  servlet:
+    context-path: /api
