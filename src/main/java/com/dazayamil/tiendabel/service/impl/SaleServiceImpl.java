@@ -53,14 +53,20 @@ public class SaleServiceImpl implements SaleService {
         for (SaleItemRequestDTO itemDTO : request.getItems()){
             Product product = productRepository.findById(itemDTO.getProductoId())
                     .orElseThrow( () -> new RuntimeException("Product not found"));
+
+            BigDecimal finalPrice = itemDTO.getPriceAtMoment();
+            if(finalPrice == null){
+                finalPrice = product.getPrice();
+            }
+
             SaleItem item = new SaleItem();
             item.setSale(sale);
             item.setProduct(product);
             item.setQuantity(itemDTO.getQuantity());
             item.setProductSize(itemDTO.getProductSize());
-            item.setPriceAtMoment(itemDTO.getPriceAtMoment());
+            item.setPriceAtMoment(finalPrice);
 
-            BigDecimal subtotal = item.getPriceAtMoment().multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
+            BigDecimal subtotal = finalPrice.multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
             total = total.add(subtotal);
             items.add(item);
         }
