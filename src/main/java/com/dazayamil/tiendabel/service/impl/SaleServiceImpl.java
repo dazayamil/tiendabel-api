@@ -81,6 +81,12 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
+    public List<SaleResponseDTO> getAllSales() {
+        List<Sale> sales = this.saleRepository.findAll();
+        return this.saleMapper.toResponseDTOList(sales);
+    }
+
+    @Override
     public SaleResponseDTO getSaleById(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
