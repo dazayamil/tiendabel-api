@@ -3,6 +3,7 @@ package com.dazayamil.tiendabel.service.impl;
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleItemRequestDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
+import com.dazayamil.tiendabel.mapper.SaleMapper;
 import com.dazayamil.tiendabel.model.entity.Product;
 import com.dazayamil.tiendabel.model.entity.Sale;
 import com.dazayamil.tiendabel.model.entity.SaleItem;
@@ -25,11 +26,13 @@ public class SaleServiceImpl implements SaleService {
     private final SaleRepository saleRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final SaleMapper saleMapper;
 
-    public SaleServiceImpl(SaleRepository saleRepository, UserRepository userRepository, ProductRepository productRepository){
+    public SaleServiceImpl(SaleRepository saleRepository, UserRepository userRepository, ProductRepository productRepository, SaleMapper saleMapper){
         this.saleRepository = saleRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.saleMapper = saleMapper;
     }
 
     @Override
@@ -74,12 +77,7 @@ public class SaleServiceImpl implements SaleService {
         sale.setItems(items);
         sale.setTotalAmount(total);
         Sale savedSale = saleRepository.save(sale);
-        return new SaleResponseDTO(
-                savedSale.getId(),
-                savedSale.getCreatedAt(),
-                savedSale.getTotalAmount(),
-                savedSale.getStatus()
-        );
+        return this.saleMapper.toResponseDTO(savedSale);
     }
 
     @Override
@@ -87,11 +85,6 @@ public class SaleServiceImpl implements SaleService {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
 
-        return new SaleResponseDTO(
-                sale.getId(),
-                sale.getCreatedAt(),
-                sale.getTotalAmount(),
-                sale.getStatus()
-        );
+        return this.saleMapper.toResponseDTO(sale);
     }
 }
