@@ -1,8 +1,10 @@
 package com.dazayamil.tiendabel.controller;
 
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
+import com.dazayamil.tiendabel.dto.request.SaleUpdateRequestDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 import com.dazayamil.tiendabel.service.SaleService;
+import com.dazayamil.tiendabel.service.impl.SaleServiceImpl;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +16,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/sales")
 public class SaleController {
-    private final SaleService saleService;
+    private final SaleServiceImpl saleService;
 
-    public SaleController(SaleService saleService){
+    public SaleController(SaleServiceImpl saleService){
         this.saleService = saleService;
     }
 
@@ -38,4 +40,11 @@ public class SaleController {
 
         return ResponseEntity.created(location).body(created);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SaleResponseDTO> updateSale(@PathVariable Long id, @Valid @RequestBody SaleUpdateRequestDTO request){
+        return ResponseEntity.ok(this.saleService.updateSaleById(id, request));
+    }
+
+
 }
