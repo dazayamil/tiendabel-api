@@ -2,6 +2,7 @@ package com.dazayamil.tiendabel.service.impl;
 
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleItemRequestDTO;
+import com.dazayamil.tiendabel.dto.request.SaleUpdateRequestDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 import com.dazayamil.tiendabel.mapper.SaleMapper;
 import com.dazayamil.tiendabel.model.entity.Product;
@@ -35,6 +36,36 @@ public class SaleServiceImpl implements SaleService {
         this.saleMapper = saleMapper;
     }
 
+    private List<SaleItem> buildSaleItems(Sale sale, List<SaleItemRequestDTO> itemsDTO){
+        List<SaleItem> items = new ArrayList<>();
+
+        for (SaleItemRequestDTO itemDTO : itemsDTO){
+            Product product = productRepository.findById(itemDTO.getProductoId())
+                    .orElseThrow( () -> new RuntimeException("Product not found"));
+
+            BigDecimal finalPrice = itemDTO.getPriceAtMoment();
+            if(finalPrice == null){
+                finalPrice = product.getPrice();
+            }
+
+            SaleItem item = new SaleItem();
+            item.setSale(sale);
+            item.setProduct(product);
+            item.setQuantity(itemDTO.getQuantity());
+            item.setProductSize(itemDTO.getProductSize());
+            item.setPriceAtMoment(finalPrice);
+            items.add(item);
+        }
+        return items;
+    }
+
+    private BigDecimal calculateTotal(List<SaleItem> items){
+        return items.stream()
+                .map(item -> item.getPriceAtMoment().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
     @Override
     public SaleResponseDTO createSale(SaleCreateRequestDTO request) {
         if(request.getItems() == null || request.getItems().isEmpty()){
@@ -50,29 +81,8 @@ public class SaleServiceImpl implements SaleService {
         sale.setPaymentMethod(request.getPaymentMethod());
         sale.setStatus(Status.COMPLETED);
 
-        List<SaleItem> items = new ArrayList<>();
-        BigDecimal total =  BigDecimal.ZERO;
-
-        for (SaleItemRequestDTO itemDTO : request.getItems()){
-            Product product = productRepository.findById(itemDTO.getProductoId())
-                    .orElseThrow( () -> new RuntimeException("Product not found"));
-
-            BigDecimal finalPrice = itemDTO.getPriceAtMoment();
-            if(finalPrice == null){
-                finalPrice = product.getPrice();
-            }
-
-            SaleItem item = new SaleItem();
-            item.setSale(sale);
-            item.setProduct(product);
-            item.setQuantity(itemDTO.getQuantity());
-            item.setProductSize(itemDTO.getProductSize());
-            item.setPriceAtMoment(finalPrice);
-
-            BigDecimal subtotal = finalPrice.multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
-            total = total.add(subtotal);
-            items.add(item);
-        }
+        List<SaleItem> items = buildSaleItems(sale, request.getItems());
+        BigDecimal total = calculateTotal(items);
 
         sale.setItems(items);
         sale.setTotalAmount(total);
@@ -92,5 +102,25 @@ public class SaleServiceImpl implements SaleService {
                 .orElseThrow(() -> new RuntimeException("Sale not found"));
 
         return this.saleMapper.toResponseDTO(sale);
+    }
+
+    @Override
+    public SaleResponseDTO updateSaleById(Long id, SaleUpdateRequestDTO request) {
+        Sale updateSale = this.saleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sale not found"));
+
+        if(updateSale.getStatus() != Status.COMPLETED){
+            throw new RuntimeException("Sale cannot be updated unless it is COMPLETED");
+        }
+
+        updateSale.setPaymentMethod(request.getPaymentMethod());
+        updateSale.getItems().clear();
+
+        List<SaleItem> items = buildSaleItems(updateSale, request.getItems());
+        BigDecimal total = calculateTotal(items);
+        updateSale.setItems(items);
+        updateSale.setTotalAmount(total);
+        Sale savedSale = saleRepository.save(updateSale);
+        return this.saleMapper.toResponseDTO(savedSale);
     }
 }
