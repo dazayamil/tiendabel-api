@@ -2,8 +2,10 @@ package com.dazayamil.tiendabel.service;
 
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleUpdateRequestDTO;
+import com.dazayamil.tiendabel.dto.response.DailyReportResponseDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface SaleService {
@@ -11,4 +13,5 @@ public interface SaleService {
     SaleResponseDTO getSaleById(Long id);
     List<SaleResponseDTO> getAllSales();
     SaleResponseDTO updateSaleById(Long id, SaleUpdateRequestDTO request);
+    DailyReportResponseDTO getDailyReport(LocalDate date);
 }
