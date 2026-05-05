@@ -2,15 +2,18 @@ package com.dazayamil.tiendabel.controller;
 
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleUpdateRequestDTO;
+import com.dazayamil.tiendabel.dto.response.DailyReportResponseDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 import com.dazayamil.tiendabel.service.SaleService;
 import com.dazayamil.tiendabel.service.impl.SaleServiceImpl;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -30,6 +33,12 @@ public class SaleController {
     @GetMapping("/{id}")
     public ResponseEntity<SaleResponseDTO> getSaleById(@PathVariable Long id){
         return ResponseEntity.ok(this.saleService.getSaleById(id));
+    }
+
+    // GET /v1/sales/daily-report?date=2026-05-04
+    @GetMapping("/daily-report")
+    public ResponseEntity<DailyReportResponseDTO> getDailyReport(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate date){
+        return ResponseEntity.ok(this.saleService.getDailyReport(date));
     }
 
     // POST /v1/sales -> 201 Create con Location header

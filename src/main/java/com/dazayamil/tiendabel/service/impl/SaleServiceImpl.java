@@ -3,12 +3,15 @@ package com.dazayamil.tiendabel.service.impl;
 import com.dazayamil.tiendabel.dto.request.SaleCreateRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleItemRequestDTO;
 import com.dazayamil.tiendabel.dto.request.SaleUpdateRequestDTO;
+import com.dazayamil.tiendabel.dto.response.DailyReportResponseDTO;
+import com.dazayamil.tiendabel.dto.response.PaymentBreakdownDTO;
 import com.dazayamil.tiendabel.dto.response.SaleResponseDTO;
 import com.dazayamil.tiendabel.mapper.SaleMapper;
 import com.dazayamil.tiendabel.model.entity.Product;
 import com.dazayamil.tiendabel.model.entity.Sale;
 import com.dazayamil.tiendabel.model.entity.SaleItem;
 import com.dazayamil.tiendabel.model.entity.User;
+import com.dazayamil.tiendabel.model.enums.Payment;
 import com.dazayamil.tiendabel.model.enums.Status;
 import com.dazayamil.tiendabel.repository.ProductRepository;
 import com.dazayamil.tiendabel.repository.SaleRepository;
@@ -18,9 +21,13 @@ import org.springframework.stereotype.Service;
 
 import javax.security.sasl.SaslException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleServiceImpl implements SaleService {
@@ -122,5 +129,52 @@ public class SaleServiceImpl implements SaleService {
         updateSale.setTotalAmount(total);
         Sale savedSale = saleRepository.save(updateSale);
         return this.saleMapper.toResponseDTO(savedSale);
+    }
+
+    private List<PaymentBreakdownDTO> buildPaymentBreakdown(List<Sale> sales) {
+
+        Map<Payment, List<Sale>> salesByPaymentMethod = sales.stream()
+                .collect(Collectors.groupingBy(sale -> sale.getPaymentMethod()));
+
+        return salesByPaymentMethod.entrySet().stream()
+                .map(entry -> mapToPaymentBreakdown(entry))
+                .collect(Collectors.toList());
+    }
+
+    private PaymentBreakdownDTO mapToPaymentBreakdown(Map.Entry<Payment, List<Sale>> entry) {
+
+        Payment paymentMethod = entry.getKey();
+        List<Sale> salesGroup = entry.getValue();
+
+        BigDecimal totalAmount = salesGroup.stream()
+                .map(Sale::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return PaymentBreakdownDTO.builder()
+                .paymentMethod(paymentMethod)
+                .count(salesGroup.size())
+                .total(totalAmount)
+                .build();
+    }
+
+    @Override
+    public DailyReportResponseDTO getDailyReport(LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.atTime(LocalTime.MAX);
+
+        List<Sale> sales = this.saleRepository.findByCreatedAtBetween(start, end);
+
+        BigDecimal totalRevenue = sales.stream()
+                .map(sale -> sale.getTotalAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<PaymentBreakdownDTO> breakdown = buildPaymentBreakdown(sales);
+
+        return DailyReportResponseDTO.builder()
+                .date(date)
+                .totalSales(sales.size())
+                .totalRevenue(totalRevenue)
+                .paymentBreakdown(breakdown)
+                .build();
+
     }
 }
